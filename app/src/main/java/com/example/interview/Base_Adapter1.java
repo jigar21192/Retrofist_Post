@@ -7,12 +7,13 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Base_Adapter1 extends BaseAdapter {
-    Context context;
-    List<State_Datum> list;
-    LayoutInflater inflater;
+    private Context context;
+    private List<State_Datum> list;
+    private LayoutInflater inflater;
 
     public Base_Adapter1(Context context, List<State_Datum> list) {
         this.context=context;

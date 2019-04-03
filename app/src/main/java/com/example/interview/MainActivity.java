@@ -27,7 +27,8 @@ public class MainActivity extends AppCompatActivity implements
 
     Api_Interface api_interface;
     Spinner country,state_spi,city_spi;
-    String country_id,sate_id;
+    String country_id;
+    String sate_id;
     List<Datum> list1=new ArrayList<>();
     List<State_Datum> state;
     List<City_Datum> city_data;
@@ -37,7 +38,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toast.makeText(MainActivity.this, "Hello", Toast.LENGTH_SHORT).show();
 
         country = (Spinner) findViewById(R.id.spinner_country);
         country.setOnItemSelectedListener(this);
@@ -54,31 +54,52 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void getStatesData() {
+        if (country_id != null) {
+            Toast.makeText(this, country_id, Toast.LENGTH_SHORT).show();
+            state = new ArrayList<>();
+            Call<List<StatesClas>> call = api_interface.getState("GetStates", "727", country_id, "eyviE/IAKm8gJ/kpDUztODmyuMcbHsaBiXBVNx9r1rc=");
 
-        Call<List<StatesClas>> call=api_interface.getState("GetStates","727",country_id,"eyviE/IAKm8gJ/kpDUztODmyuMcbHsaBiXBVNx9r1rc=");
+            call.enqueue(new Callback<List<StatesClas>>() {
+                @Override
+                public void onResponse(Call<List<StatesClas>> call, Response<List<StatesClas>> response) {
+                    List<StatesClas> states = response.body();
 
-        call.enqueue(new Callback<List<StatesClas>>() {
-            @Override
-            public void onResponse(Call<List<StatesClas>> call, Response<List<StatesClas>> response) {
-                List<StatesClas> states=response.body();
 
-                for (int i=0;i<states.size();i++) {
+                    for (int i = 0; i < states.size(); i++) {
+                        if (states.get(i).getStatus()==true){
+                            state = states.get(i).getData();
 
-                    state=states.get(i).getData();
+                        }else {
+                            Log.e("State",">>>>>"+"State not found");
+                            state.clear();
+                            city_data.clear();
+                        }
+                        Base_Adapter1 adapter1 = new Base_Adapter1(MainActivity.this, state);
+                        // adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        state_spi.setAdapter(adapter1);
+                        adapter1.notifyDataSetChanged();
 
-                    Base_Adapter1 adapter1=new Base_Adapter1(MainActivity.this,state);
-                    // adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    state_spi.setAdapter(adapter1);
+
+
+
+                    }
+
+
+
+
+
 
                 }
 
-            }
+                @Override
+                public void onFailure(Call<List<StatesClas>> call, Throwable t) {
 
-            @Override
-            public void onFailure(Call<List<StatesClas>> call, Throwable t) {
+                }
+            });
+        }else {
 
-            }
-        });
+            Toast.makeText(this, "country id null", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -89,7 +110,9 @@ public class MainActivity extends AppCompatActivity implements
                 country_id=list1.get(position).getCountryId();
 
                // Toast.makeText(this, country_id.toString(), Toast.LENGTH_SHORT).show();
+
                 getStatesData();
+                getCityData();
 
 
 
@@ -101,7 +124,6 @@ public class MainActivity extends AppCompatActivity implements
                 //Your Another Action Here.
                 break;
             case R.id.spinner_city :
-                Log.e("GGGGG",">>>>>>>>>"+city_data.get(position).getCityName());
             //    Toast.makeText(this, , Toast.LENGTH_SHORT).show();
                 //Your Another Action Here.
                 break;
@@ -110,30 +132,48 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void getCityData() {
-        Call<List<CityClas>> call=api_interface.getCity("GetCity","727",sate_id,"NfdICexlA6feO6sNkqzHZA==");
+        if (sate_id!=null) {
+            Toast.makeText(this, sate_id, Toast.LENGTH_SHORT).show();
+            city_data = new ArrayList<>();
+            Call<List<CityClas>> call = api_interface.getCity("GetCity", "727", sate_id, "NfdICexlA6feO6sNkqzHZA==");
 
-        call.enqueue(new Callback<List<CityClas>>() {
-            @Override
-            public void onResponse(Call<List<CityClas>> call, Response<List<CityClas>> response) {
-                List<CityClas> cityClas=response.body();
-                for (int i=0;i<cityClas.size();i++){
-                    //   Log.e("list",">>>>>>"+list.size());
-                    city_data=cityClas.get(i).getData();
+            call.enqueue(new Callback<List<CityClas>>() {
+                @Override
+                public void onResponse(Call<List<CityClas>> call, Response<List<CityClas>> response) {
+                    List<CityClas> cityClas = response.body();
 
 
-                    Base_Adapter2 adapter2=new Base_Adapter2(MainActivity.this,city_data);
-                    // adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    city_spi.setAdapter(adapter2);
+                    for (int i = 0; i < cityClas.size(); i++) {
+                       if(cityClas.get(i).getStatus()==true) {
+                           Log.e("list", ">>>>>>" + cityClas.get(i).getData());
+                           city_data = cityClas.get(i).getData();
+
+                       }else
+                       {
+                           Log.e("City",">>>>>"+"City not found");
+                           city_data.clear();
+                       }
+                        Base_Adapter2 adapter2 = new Base_Adapter2(MainActivity.this, city_data);
+                        // adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        city_spi.setAdapter(adapter2);
+
+
+                    }
+
+
+
                 }
-            }
 
-            @Override
-            public void onFailure(Call<List<CityClas>> call, Throwable t) {
+                @Override
+                public void onFailure(Call<List<CityClas>> call, Throwable t) {
 
-            }
-        });
+                }
+            });
 
-
+        }
+        else {
+            Toast.makeText(this, "City id null", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -157,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements
                     Base_Adapter adapter=new Base_Adapter(MainActivity.this,list1);
                     // adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     country.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
                 }
 
 

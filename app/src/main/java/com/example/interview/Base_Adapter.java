@@ -10,9 +10,9 @@ import android.widget.TextView;
 import java.util.List;
 
 public class Base_Adapter extends BaseAdapter {
-    Context context;
-    List<Datum> list;
-    LayoutInflater inflater;
+    private Context context;
+    private List<Datum> list;
+    private LayoutInflater inflater;
 
     public Base_Adapter(Context context, List<Datum> list) {
         this.context=context;
